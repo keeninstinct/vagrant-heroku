@@ -1,0 +1,13 @@
+The following manual steps were taken once Veewee built the VM:
+
+1. Adjust postgresql.conf file to increase memory usage:
+   shared_buffers = 128MB
+   work_mem = 4MB
+   maintenance_work_mem = 25MB 
+   checkpoint_segments = 16
+2. Adjust postgresql.conf to set listen_address = '*'
+3. Adjust pg_hba.conf and do the following:
+   1. Comment out this line:
+      host    all             all             127.0.0.1/32            trust
+   2. Add this line at bottom:
+      host     all             all            0.0.0.0/0               trust

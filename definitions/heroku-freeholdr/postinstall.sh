@@ -81,15 +81,15 @@ su -c "/usr/bin/initdb -D /var/pgsql/data --locale=en_US.UTF-8 --encoding=UNICOD
 mkdir /var/pgsql/data/log
 chown postgres /var/pgsql/data/log
 
-# Add 'vagrant' role
-su -c 'createuser vagrant -s' postgres
-
 # Start postgres
 su -c '/usr/bin/pg_ctl start -l /var/pgsql/data/log/logfile -D /var/pgsql/data' postgres
 
 # Start postgres at boot
 sed -i -e 's/exit 0//g' /etc/rc.local
 echo "su -c '/usr/bin/pg_ctl start -l /var/pgsql/data/log/logfile -D /var/pgsql/data' postgres" >> /etc/rc.local
+
+# Add 'vagrant' role
+su -c 'createuser vagrant -s' postgres
 
 # Install NodeJs for a JavaScript runtime
 git clone https://github.com/joyent/node.git
@@ -122,22 +122,6 @@ umount /mnt
 
 rm VBoxGuestAdditions_$VBOX_VERSION.iso
 
-# Zero out the free space to save space in the final image:
-dd if=/dev/zero of=/EMPTY bs=1M
-rm -f /EMPTY
-
-# Removing leftover leases and persistent rules
-echo "cleaning up dhcp leases"
-rm /var/lib/dhcp3/*
-
-# Make sure Udev doesn't block our network
-# http://6.ptmc.org/?p=164
-echo "cleaning up udev rules"
-rm /etc/udev/rules.d/70-persistent-net.rules
-mkdir /etc/udev/rules.d/70-persistent-net.rules
-rm -rf /dev/.udev/
-rm /lib/udev/rules.d/75-persistent-net-generator.rules
-
 # Install Heroku toolbelt
 wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
 
@@ -148,11 +132,19 @@ apt-get -y install imagemagick libmagickcore-dev libmagickwand-dev
 # Set locale
 echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
 
-### Install Freeholdr specific stuff ###
+### BEGIN: Install Freeholdr specific stuff ###
+
+# Remove symlink to Heroku installed foreman because it's old
+rm -f /usr/bin/foreman
+
+# Create freeholdr user for PostgreSQL
+su -c 'createuser freeholdr -s' postgres
+
+# Install packages we like
+apt-get -y install lynx
 
 # Install Memcached 1.4.15
 apt-get -y install libevent-dev libsasl2-dev
-
 wget http://memcached.googlecode.com/files/memcached-1.4.15.tar.gz
 tar xzf memcached-1.4.15.tar.gz
 cd memcached-1.4.15
@@ -164,7 +156,6 @@ rm -rf memcached-1.4.15*
 
 # Install Redis
 apt-get -y install tcl8.5 
-
 wget http://download.redis.io/redis-stable.tar.gz
 tar xzf redis-stable.tar.gz
 cd redis-stable
@@ -180,7 +171,6 @@ rm -rf redis-stable*
 
 # Install nginx 1.4.1
 apt-get -y install libpcre3-dev 
-
 wget http://nginx.org/download/nginx-1.4.1.tar.gz
 tar xzf nginx-1.4.1.tar.gz
 cd nginx-1.4.1
@@ -198,12 +188,32 @@ sysctl -p /etc/sysctl.d/30-postgresql-shm.conf
 printf "vm.overcommit_memory = 1" > /etc/sysctl.d/30-redis-overcommit.conf
 sysctl -p /etc/sysctl.d/30-redis-overcommit.conf
 
-# Manually adjust PostgreSQL configuration so it will use more memory if needed
+### END: Install Freeholdr specific stuff ###
+
+# Removing leftover leases and persistent rules
+echo "cleaning up dhcp leases"
+rm /var/lib/dhcp3/*
+
+# Make sure Udev doesn't block our network
+# http://6.ptmc.org/?p=164
+echo "cleaning up udev rules"
+rm /etc/udev/rules.d/70-persistent-net.rules
+mkdir /etc/udev/rules.d/70-persistent-net.rules
+rm -rf /dev/.udev/
+rm /lib/udev/rules.d/75-persistent-net-generator.rules
 
 # Clean up packages
 apt-get clean
 
 echo "Adding a 2 sec delay to the interface up, to make the dhclient happy"
 echo "pre-up sleep 2" >> /etc/network/interfaces
+
+# Zero out the free space to save space in the final image:
+echo "Zeroing out free space to save space in the final image"
+dd if=/dev/zero of=/EMPTY bs=1M
+rm -f /EMPTY
+
+echo "Done!"
+
 exit
 exit
