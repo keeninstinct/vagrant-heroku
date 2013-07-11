@@ -145,6 +145,9 @@ wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
 apt-get -y install libxml2-dev libxslt-dev curl libcurl4-openssl-dev
 apt-get -y install imagemagick libmagickcore-dev libmagickwand-dev
 
+# Set locale
+echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
+
 ### Install Freeholdr specific stuff ###
 
 # Install Memcached 1.4.15
@@ -199,9 +202,6 @@ sysctl -p /etc/sysctl.d/30-redis-overcommit.conf
 
 # Clean up packages
 apt-get clean
-
-# Set locale
-echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
 
 echo "Adding a 2 sec delay to the interface up, to make the dhclient happy"
 echo "pre-up sleep 2" >> /etc/network/interfaces
