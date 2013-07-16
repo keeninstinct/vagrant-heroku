@@ -96,7 +96,7 @@ su -c 'createuser vagrant -s' postgres
 git clone https://github.com/joyent/node.git
 cd node
 git checkout v0.4.7
-./configure --prefix=/usr --with-openssl --with-ossp-uuid
+./configure --prefix=/usr
 make
 make install
 cd ..
