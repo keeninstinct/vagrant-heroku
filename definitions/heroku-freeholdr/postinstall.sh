@@ -64,12 +64,13 @@ echo "export WORKON_HOME=/home/vagrant/.virtualenvs" >> /home/vagrant/.bashrc
 echo "source /usr/local/bin/virtualenvwrapper.sh" >> /home/vagrant/.bashrc
 
 # Install PostgreSQL 9.2.4
+apt-get -y install libossp-uuid-dev
 wget http://ftp.postgresql.org/pub/source/v9.2.4/postgresql-9.2.4.tar.bz2
 tar jxf postgresql-9.2.4.tar.bz2
 cd postgresql-9.2.4
-./configure --prefix=/usr
+./configure --prefix=/usr --with-openssl --with-ossp-uuid
 make world
-make install
+make install-world
 cd ..
 rm -rf postgresql-9.2.4*
 
@@ -95,7 +96,7 @@ su -c 'createuser vagrant -s' postgres
 git clone https://github.com/joyent/node.git
 cd node
 git checkout v0.4.7
-./configure --prefix=/usr
+./configure --prefix=/usr --with-openssl --with-ossp-uuid
 make
 make install
 cd ..
