@@ -122,12 +122,14 @@ if [ -e /home/vagrant/.vbox_version ]; then
   rm VBoxGuestAdditions_$VBOX_VERSION.iso    
 elif [ -e /home/vagrant/.vmfusion_version ]; then
   # Install for VMWare Fusion
-  mount -o loop linux.iso /mnt
-  tar -zxvf /mnt/VMwareTools*.tar.gz
+  mkdir /mnt/linux-tools
+  mount -o loop linux.iso /mnt/linux-tools
+  tar -zxvf /mnt/linux-tools/VMwareTools*.tar.gz
   cd vmware-tools-distrib
   ./vmware-install.pl --default --clobber-kernel-modules=vmxnet3,pvscsi
   cd /home/vagrant
-  umount /mnt
+  umount /mnt/linux-tools
+  rmdir /mnt/linux-tools
   rm -Rf vmware-tools-distrib linux.iso 
 fi
 
