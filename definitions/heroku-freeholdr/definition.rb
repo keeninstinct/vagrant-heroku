@@ -1,5 +1,5 @@
 Veewee::Session.declare({
-  :cpu_count => '2', :memory_size=> '2048',
+  :cpu_count => '1', :memory_size=> '1024',
   :disk_size => '10140', :disk_format => 'VDI', :hostiocache => 'on',
   :os_type_id => 'Ubuntu_64',
   :iso_file => "ubuntu-10.04.4-server-amd64.iso",
