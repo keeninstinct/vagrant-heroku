@@ -35,13 +35,13 @@ rm -rf ruby-2.0.0-p247*
 chown -R root:admin /opt/ruby
 chmod -R g+w /opt/ruby
 
-# Install RubyGems 2.0.3
-wget http://production.cf.rubygems.org/rubygems/rubygems-2.0.3.tgz
-tar xzf rubygems-2.0.3.tgz
-cd rubygems-2.0.3
+# Install RubyGems 2.0.7
+wget http://production.cf.rubygems.org/rubygems/rubygems-2.0.7.tgz
+tar xzf rubygems-2.0.7.tgz
+cd rubygems-2.0.7
 /opt/ruby/bin/ruby setup.rb
 cd ..
-rm -rf rubygems-2.0.3*
+rm -rf rubygems-2.0.7*
 
 # Installing chef & Puppet
 /opt/ruby/bin/gem install chef --no-ri --no-rdoc
@@ -89,9 +89,6 @@ su -c '/usr/bin/pg_ctl start -l /var/pgsql/data/log/logfile -D /var/pgsql/data' 
 sed -i -e 's/exit 0//g' /etc/rc.local
 echo "su -c '/usr/bin/pg_ctl start -l /var/pgsql/data/log/logfile -D /var/pgsql/data' postgres" >> /etc/rc.local
 
-# Add 'vagrant' role
-su -c 'createuser vagrant -s' postgres
-
 # Install NodeJs for a JavaScript runtime
 git clone https://github.com/joyent/node.git
 cd node
@@ -114,14 +111,25 @@ wget --no-check-certificate 'https://raw.github.com/mitchellh/vagrant/master/key
 chmod 600 /home/vagrant/.ssh/authorized_keys
 chown -R vagrant /home/vagrant/.ssh
 
-# Installing the virtualbox guest additions
-VBOX_VERSION=$(cat /home/vagrant/.vbox_version)
+# Installing the virtual machine guest additions
 cd /home/vagrant
-mount -o loop VBoxGuestAdditions_$VBOX_VERSION.iso /mnt
-sh /mnt/VBoxLinuxAdditions.run
-umount /mnt
-
-rm VBoxGuestAdditions_$VBOX_VERSION.iso
+if [ -e /home/vagrant/.vbox_version ]; then  
+  # Install for VirtualBox
+  VBOX_VERSION=$(cat /home/vagrant/.vbox_version)  
+  mount -o loop VBoxGuestAdditions_$VBOX_VERSION.iso /mnt
+  sh /mnt/VBoxLinuxAdditions.run
+  umount /mnt
+  rm VBoxGuestAdditions_$VBOX_VERSION.iso    
+elif [ -e /home/vagrant/.vmfusion_version ]; then
+  # Install for VMWare Fusion
+  mount -o loop linux.iso /mnt
+  tar -zxvf /mnt/VMwareTools*.tar.gz
+  cd vmware-tools-distrib
+  ./vmware-install.pl --default --clobber-kernel-modules=vmxnet3,pvscsi
+  cd /home/vagrant
+  umount /mnt
+  rm -Rf vmware-tools-distrib linux.iso 
+fi
 
 # Install Heroku toolbelt
 wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
@@ -137,6 +145,9 @@ echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
 
 # Remove symlink to Heroku installed foreman because it's old
 rm -f /usr/bin/foreman
+
+# Add 'vagrant' role
+su -c 'createuser vagrant -s' postgres
 
 # Create freeholdr user for PostgreSQL
 su -c 'createuser freeholdr -s' postgres
