@@ -24,24 +24,19 @@ apt-get -y install nfs-common
 
 # Install Ruby from source in /opt so that users of Vagrant
 # can install their own Rubies using packages or however.
-wget http://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.bz2
-tar jxf ruby-2.0.0-p247.tar.bz2
-cd ruby-2.0.0-p247
+wget http://cache.ruby-lang.org/pub/ruby/2.1/ruby-2.1.0.tar.gz
+tar -zxvf ruby-2.1.0.tar.gz
+cd ruby-2.1.0
 ./configure --prefix=/opt/ruby
 make
 make install
 cd ..
-rm -rf ruby-2.0.0-p247*
+rm -rf ruby-2.1.0*
 chown -R root:admin /opt/ruby
 chmod -R g+w /opt/ruby
 
-# Install RubyGems 2.0.7
-wget http://production.cf.rubygems.org/rubygems/rubygems-2.0.7.tgz
-tar xzf rubygems-2.0.7.tgz
-cd rubygems-2.0.7
-/opt/ruby/bin/ruby setup.rb
-cd ..
-rm -rf rubygems-2.0.7*
+# Install latest RubyGems
+/opt/ruby/bin/gem update --system
 
 # Installing chef & Puppet
 /opt/ruby/bin/gem install chef --no-ri --no-rdoc
@@ -63,16 +58,16 @@ pip install virtualenvwrapper
 echo "export WORKON_HOME=/home/vagrant/.virtualenvs" >> /home/vagrant/.bashrc
 echo "source /usr/local/bin/virtualenvwrapper.sh" >> /home/vagrant/.bashrc
 
-# Install PostgreSQL 9.2.4
+# Install PostgreSQL 9.3.2
 apt-get -y install libossp-uuid-dev
-wget http://ftp.postgresql.org/pub/source/v9.2.4/postgresql-9.2.4.tar.bz2
-tar jxf postgresql-9.2.4.tar.bz2
-cd postgresql-9.2.4
+wget http://ftp.postgresql.org/pub/source/v9.3.2/postgresql-9.3.2.tar.bz2
+tar jxf postgresql-9.3.2.tar.bz2
+cd postgresql-9.3.2
 ./configure --prefix=/usr --with-openssl --with-ossp-uuid
 make world
 make install-world
 cd ..
-rm -rf postgresql-9.2.4*
+rm -rf postgresql-9.3.2*
 
 # Initialize postgres DB
 useradd -p postgres postgres
@@ -157,16 +152,16 @@ su -c 'createuser freeholdr -s' postgres
 # Install packages we like
 apt-get -y install lynx
 
-# Install Memcached 1.4.15
+# Install Memcached 1.4.17
 apt-get -y install libevent-dev libsasl2-dev
-wget http://memcached.googlecode.com/files/memcached-1.4.15.tar.gz
-tar xzf memcached-1.4.15.tar.gz
-cd memcached-1.4.15
+wget http://www.memcached.org/files/memcached-1.4.17.tar.gz
+tar xzf memcached-1.4.17.tar.gz
+cd memcached-1.4.17
 ./configure --prefix=/usr --enable-sasl
 make
 make install
 cd ..
-rm -rf memcached-1.4.15*
+rm -rf memcached-1.4.17*
 
 # Install Redis
 apt-get -y install tcl8.5 
@@ -183,16 +178,16 @@ cp redis-check-dump /usr/bin/
 cd ../..
 rm -rf redis-stable*
 
-# Install nginx 1.4.1
+# Install nginx 1.4.4
 apt-get -y install libpcre3-dev 
-wget http://nginx.org/download/nginx-1.4.1.tar.gz
-tar xzf nginx-1.4.1.tar.gz
-cd nginx-1.4.1
+wget http://nginx.org/download/nginx-1.4.4.tar.gz
+tar xzf nginx-1.4.4.tar.gz
+cd nginx-1.4.4
 ./configure --prefix=/usr --with-http_ssl_module
 make
 make install
 cd ..
-rm -rf nginx-1.4.1*
+rm -rf nginx-1.4.4*
 
 # Increase kernel shared memory for PostgreSQL so it can use more memory
 printf "kernel.shmmax = 1053503488\nkernel.shmall = 257203" > /etc/sysctl.d/30-postgresql-shm.conf
