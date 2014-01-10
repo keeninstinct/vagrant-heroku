@@ -197,6 +197,10 @@ sysctl -p /etc/sysctl.d/30-postgresql-shm.conf
 printf "vm.overcommit_memory = 1" > /etc/sysctl.d/30-redis-overcommit.conf
 sysctl -p /etc/sysctl.d/30-redis-overcommit.conf
 
+# Make sure permissions are good with Ruby
+chown -R root:admin /opt/ruby
+chmod -R g+w /opt/ruby
+
 ### END: Install Freeholdr specific stuff ###
 
 # Removing leftover leases and persistent rules
